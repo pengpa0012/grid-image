@@ -3,7 +3,7 @@ let imgInput, img, images = [], dragging, draggingImg, draggingOffsetX, dragging
 function setup() {
   createCanvas(windowWidth, windowHeight)
   imgInput = createFileInput(onHandleImage)
-  imgInput.position(width/2, height/2)
+  imgInput.position((width/2) - (imgInput.width / 2), height/2)
 }
 
 function windowResized() {
@@ -12,8 +12,12 @@ function windowResized() {
 
 function draw() {
   clear()
+  if(gridCells.length > 0) {
+    for(let i = 0; i < gridCells.length; i++) {
+      rect(gridCells[i].posX, gridCells[i].posY, gridCells[i].size, gridCells[i].size)
+    }
+  }
   if(images.length > 0) {
-    generateGrid(5)
     for(let i = 0; i < images.length; i++) {
       stroke(0)
       rect(images[i].posX, images[i].posY, images[i].width, images[i].height)
@@ -52,7 +56,7 @@ function mouseDragged() {
 }
 
 function mouseReleased() {
-  if(images.length > 0) {
+  if(gridCells.length > 0) {
     for(let i = 0; i < gridCells.length; i++) {
       if (
         mouseX > gridCells[i].posX && 
@@ -75,9 +79,9 @@ function onHandleImage(file) {
     images = []
     loadImage(file.data, e => {
       img = e
-      img.width = 500
-      img.height = 500
+      img.resize(500, 500)
       images = sliceImages(img, 5)
+      generateGrid(5)
     })
   } else {
     imgInput.elt.value = ""
@@ -109,7 +113,6 @@ function generateGrid(dimension) {
       const x = j * cellSize
       const y = i * cellSize
       gridCells.push({posX: (((width / 2) - 100) + x) - 100, posY: (((height / 2) - 100) + y) - 100, size: cellSize})
-      rect((((width / 2) - 100) + x) - 100, (((height / 2) - 100) + y) - 100, cellSize, cellSize)
     }
   }
 }
