@@ -1,4 +1,4 @@
-let imgInput, img, images = [], dragging
+let imgInput, img, images = [], dragging, draggingImg, draggingOffsetX, draggingOffsetY
 
 function setup() {
   createCanvas(windowWidth, windowHeight)
@@ -13,11 +13,8 @@ function windowResized() {
 function draw() {
   clear()
   if(images.length > 0) {
+    generateGrid(5)
     for(let i = 0; i < images.length; i++) {
-      if (images[i].dragging) {
-        images[i].posX = mouseX + images[i].offsetX
-        images[i].posY = mouseY + images[i].offsetY
-      }
       image(images[i], images[i].posX, images[i].posY)
     }
   }
@@ -33,18 +30,27 @@ function mousePressed() {
         mouseY > images[i].posY && 
         mouseY < images[i].posY + images[i].height
       ) {
-        images[i].dragging = true
-        images[i].offsetX = images[i].posX - mouseX
-        images[i].offsetY = images[i].posY - mouseY
+        draggingImg = images[i]
+        draggingOffsetX = draggingImg.posX - mouseX
+        draggingOffsetY = draggingImg.posY - mouseY
+
+        images.splice(i, 1)
+        images.push(draggingImg)
+        break
       }
     }
   }
 }
 
-function mouseReleased() {
-  for(let i = 0; i < images.length; i++) {
-    images[i].dragging = false
+function mouseDragged() {
+  if (draggingImg) {
+    draggingImg.posX = draggingOffsetX + mouseX
+    draggingImg.posY = draggingOffsetY + mouseY
   }
+}
+
+function mouseReleased() {
+   draggingImg = null
 }
 
 function onHandleImage(file) {
@@ -78,4 +84,15 @@ function sliceImages(img, dimension) {
     }
   }
   return imgPieces
+}
+
+function generateGrid(dimension) {
+  const cellSize = (dimension * 100) / dimension
+  for(let i = 0; i < dimension; i++) {
+    for(let j = 0; j < dimension; j++) {
+      const x = j * cellSize
+      const y = i * cellSize
+      rect((((width / 2) - 100) + x) - 100, (((height / 2) - 100) + y) - 100, cellSize, cellSize)
+    }
+  }
 }
