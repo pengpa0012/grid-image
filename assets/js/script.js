@@ -1,4 +1,4 @@
-let imgInput, img, images = [], dragging, draggingImg, draggingOffsetX, draggingOffsetY
+let imgInput, img, images = [], dragging, draggingImg, draggingOffsetX, draggingOffsetY, gridCells = []
 
 function setup() {
   createCanvas(windowWidth, windowHeight)
@@ -15,6 +15,8 @@ function draw() {
   if(images.length > 0) {
     generateGrid(5)
     for(let i = 0; i < images.length; i++) {
+      stroke(0)
+      rect(images[i].posX, images[i].posY, images[i].width, images[i].height)
       image(images[i], images[i].posX, images[i].posY)
     }
   }
@@ -50,7 +52,21 @@ function mouseDragged() {
 }
 
 function mouseReleased() {
-   draggingImg = null
+  if(images.length > 0) {
+    for(let i = 0; i < gridCells.length; i++) {
+      if (
+        mouseX > gridCells[i].posX && 
+        mouseX < gridCells[i].posX + gridCells[i].size && 
+        mouseY > gridCells[i].posY && 
+        mouseY < gridCells[i].posY + gridCells[i].size
+      ) {
+        // change the curr dragging image to closest cell
+        draggingImg.posX = gridCells[i].posX
+        draggingImg.posY = gridCells[i].posY
+      }
+    }
+  }
+  draggingImg = null
 }
 
 function onHandleImage(file) {
@@ -92,6 +108,7 @@ function generateGrid(dimension) {
     for(let j = 0; j < dimension; j++) {
       const x = j * cellSize
       const y = i * cellSize
+      gridCells.push({posX: (((width / 2) - 100) + x) - 100, posY: (((height / 2) - 100) + y) - 100, size: cellSize})
       rect((((width / 2) - 100) + x) - 100, (((height / 2) - 100) + y) - 100, cellSize, cellSize)
     }
   }
